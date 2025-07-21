@@ -19,9 +19,12 @@ const typeDefs = gql`
 
     type Query {
        obtenerProyectos: [Proyecto]
-       obtenerTareas(id: ID!): [Tarea] 
+       obtenerTareas(input: ProyectoIDInput): [Tarea] 
     }
 
+    input ProyectoIDInput {
+        proyecto: String!
+    }
     input UsuarioInput {
         nombre: String!
         email: String!

@@ -17,12 +17,12 @@ const resolvers = {
             const proyectos = await Proyecto.find({ creador: ctx.usuario.id})
             return proyectos
        },
-       obtenerTareas: async (_, {id}, ctx) => {
+       obtenerTareas: async (_, {input}, ctx) => {
         
             //Retornar las tareas de un proyecto
-            const tareas = await Tarea.find({proyecto: id})
+            const tareas = await Tarea.find({creador: ctx.usuario.id }).where('proyecto').equals(input.proyecto)
             return tareas
-        }
+        },
     },
     Mutation: {
         crearUsuario: async( _, {input} ) => {
@@ -48,7 +48,6 @@ const resolvers = {
                 console.log(error)
             }
         },
-
         authenticarUsuario: async( _, {input} ) => {
             const {email, password} = input
 
@@ -65,9 +64,10 @@ const resolvers = {
 
             //Dar acceso a la app
             return{
-                token: crearToken(existeUsuario, process.env.SECRETA, '2hr')
+                token: crearToken(existeUsuario, process.env.SECRETA, '24hr')
             }
         },
+
         nuevoProyecto: async( _, {input}, ctx ) => {
             try {
                 const proyecto = new Proyecto(input)
@@ -118,6 +118,7 @@ const resolvers = {
             return 'Proyecto Eliminardo'
             
         },
+
         crearTarea: async(_, {input}, ctx) => {
             try {
                 //Revisar si el proyecto existe
@@ -131,17 +132,18 @@ const resolvers = {
                     throw new Error('no tienes permisos para crear una tarea')
                 }
                 if(ctx.usuario.exp < Date.now() / 1000) {
-                    throw new Error('Token Expirado ')
+                    throw new Error('Token Expirado')
                 }
+                const tarea = new Tarea(input)
+                //Asignar el creador y proyecto
+                tarea.creador = ctx.usuario.id
+                tarea.proyecto = input.proyecto
+
                 //Revisar si la persona q crea la tarea es el creador
                 if(tarea.creador.toString() !== ctx.usuario.id){
                     throw new Error("Solo el creador puede crear una tarea")
                 }
 
-                const tarea = new Tarea(input)
-                //Asignar el creador y proyecto
-                tarea.creador = ctx.usuario.id
-                tarea.proyecto = input.proyecto
                 //Alamacenar en la BD
                 const resultado = await tarea.save()
                 return resultado
