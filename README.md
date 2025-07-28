@@ -9,6 +9,7 @@ Admin Proyectos GraphQL es una aplicación que permite gestionar proyectos y tar
 - Asignación de usuarios a proyectos y tareas.
 - Visualización del estado y progreso de los proyectos.
 - Autenticación y registro de usuarios.
+- edicion y eliminacion de usuarios.
 
 ## Tecnologías utilizadas
 
